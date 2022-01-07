@@ -5,9 +5,25 @@ import json
 # Create your views here.
 
 def store(request):
+
+     items = []
+     order = {
+          "get_total": 0,
+          "get_quantity": 0
+     }
+     cartItems_quantity = order["get_quantity"]
+
+     if request.user.is_authenticated:
+          customer = request.user.customer
+          order, created = Order.objects.get_or_create(customer=customer, complete=False)
+          items = order.orderitem_set.all()
+          cartItems_quantity = order.get_quantity
+     
      products = Product.objects.all()
+
      context = {
-          "products": products
+          "products": products,
+          "cartItems_quantity": cartItems_quantity,
      }
      return render(request, 'store/store.html', context)
 
@@ -18,15 +34,18 @@ def cart(request):
           "get_total": 0,
           "get_quantity": 0
      }
+     cartItems_quantity = order["get_quantity"]
 
      if request.user.is_authenticated:
           customer = request.user.customer
           order, created = Order.objects.get_or_create(customer=customer, complete=False)
           items = order.orderitem_set.all()
+          cartItems_quantity = order.get_quantity
 
      context = {
           "items": items,
-          "order": order
+          "order": order,
+          "cartItems_quantity": cartItems_quantity
      }
      return render(request, 'store/cart.html', context)
 
@@ -34,17 +53,21 @@ def checkout(request):
      items = []
      order = {
           "get_total": 0,
-          "get_quantity": 0
+          "get_quantity": 0,
+          "shipping": False
      }
+     cartItems_quantity = order["get_quantity"]
 
      if request.user.is_authenticated:
           customer = request.user.customer
           order, created = Order.objects.get_or_create(customer=customer, complete=False)
           items = order.orderitem_set.all()
+          cartItems_quantity = order.get_quantity
 
      context = {
           "items": items,
-          "order": order
+          "order": order,
+          "cartItems_quantity": cartItems_quantity
      }
      return render(request, 'store/checkout.html', context)
 
