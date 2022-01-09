@@ -30,6 +30,11 @@ def store(request):
 
 def cart(request):
 
+     try:
+          cart = json.loads(request.COOKIES["cart"])
+     except KeyError:
+          cart = {}
+
      items = []
      order = {
           "get_total": 0,
@@ -42,6 +47,14 @@ def cart(request):
           order, created = Order.objects.get_or_create(customer=customer, complete=False)
           items = order.orderitem_set.all()
           cartItems_quantity = order.get_quantity
+     else:
+          for i in cart:
+               cartItems_quantity += cart[i]["quantity"]
+               product = Product.objects.get(id=i)
+               total = (product.price * cart[i]["quantity"])
+
+               order["get_total"] += total
+               order["get_quantity"] += cart[i]["quantity"]
 
      context = {
           "items": items,

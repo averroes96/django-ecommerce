@@ -15,7 +15,7 @@ class Customer(models.Model):
 class Product(models.Model):
 
     name = models.CharField(max_length=32, null=True, blank=True)
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=7, decimal_places=2)
     digital = models.BooleanField(default=False, null=True, blank=False)
     image = models.ImageField(null=True, blank=True)
 
@@ -29,7 +29,6 @@ class Product(models.Model):
         except:
             url = ""
         return url
-
 
 class Order(models.Model):
 
