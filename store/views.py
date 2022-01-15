@@ -3,22 +3,14 @@ from django.http import JsonResponse
 from .models import *
 import json
 from datetime import datetime
+from .utils import cookieCart,cartData
 # Create your views here.
 
 def store(request):
 
-     items = []
-     order = {
-          "get_total": 0,
-          "get_quantity": 0
-     }
-     cartItems_quantity = order["get_quantity"]
-
-     if request.user.is_authenticated:
-          customer = request.user.customer
-          order, created = Order.objects.get_or_create(customer=customer, complete=False)
-          items = order.orderitem_set.all()
-          cartItems_quantity = order.get_quantity
+     data = cartData(request)
+     
+     cartItems_quantity = data["cartItems"]
      
      products = Product.objects.all()
 
@@ -30,31 +22,11 @@ def store(request):
 
 def cart(request):
 
-     try:
-          cart = json.loads(request.COOKIES["cart"])
-     except KeyError:
-          cart = {}
-
-     items = []
-     order = {
-          "get_total": 0,
-          "get_quantity": 0
-     }
-     cartItems_quantity = order["get_quantity"]
-
-     if request.user.is_authenticated:
-          customer = request.user.customer
-          order, created = Order.objects.get_or_create(customer=customer, complete=False)
-          items = order.orderitem_set.all()
-          cartItems_quantity = order.get_quantity
-     else:
-          for i in cart:
-               cartItems_quantity += cart[i]["quantity"]
-               product = Product.objects.get(id=i)
-               total = (product.price * cart[i]["quantity"])
-
-               order["get_total"] += total
-               order["get_quantity"] += cart[i]["quantity"]
+     data = cartData(request)
+     
+     cartItems_quantity = data["cartItems"]
+     order = data["order"]
+     items = data["items"]
 
      context = {
           "items": items,
@@ -64,19 +36,12 @@ def cart(request):
      return render(request, 'store/cart.html', context)
 
 def checkout(request):
-     items = []
-     order = {
-          "get_total": 0,
-          "get_quantity": 0,
-          "shipping": False
-     }
-     cartItems_quantity = order["get_quantity"]
 
-     if request.user.is_authenticated:
-          customer = request.user.customer
-          order, created = Order.objects.get_or_create(customer=customer, complete=False)
-          items = order.orderitem_set.all()
-          cartItems_quantity = order.get_quantity
+     data = cartData(request)
+
+     cartItems_quantity = data["cartItems"]
+     order = data["order"]
+     items = data["items"]
 
      context = {
           "items": items,
