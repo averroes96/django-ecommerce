@@ -1,9 +1,10 @@
+from itertools import product
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import *
 import json
 from datetime import datetime
-from .utils import cookieCart,cartData
+from .utils import cookieCart,cartData,guestOrder
 # Create your views here.
 
 def store(request):
@@ -81,22 +82,24 @@ def processOrder(request):
      if request.user.is_authenticated:
           customer = request.user.customer
           order, created = Order.objects.get_or_create(customer=customer, complete=False)
-          total = float(data["userInfo"]["total"])
-          order.transaction_id = transaction_id
-
-          if total == float(order.get_total):
-               order.complete = True
-          order.save()
-
-          if order.shipping:
-               ShippingAddress.objects.create(
-                    customer=customer,
-                    order=order,
-                    address=data["shippingInfo"]["address"],
-                    city=data["shippingInfo"]["city"],
-                    state=data["shippingInfo"]["state"],
-                    zipcode=data["shippingInfo"]["zipcode"]
-               )
      else:
-          print("User is not logged in")
+          order, customer = guestOrder(request, data)
+
+     total = float(data["userInfo"]["total"])
+     order.transaction_id = transaction_id
+
+     if total == float(order.get_total):
+          order.complete = True
+     order.save()
+
+     if order.shipping:
+          ShippingAddress.objects.create(
+               customer=customer,
+               order=order,
+               address=data["shippingInfo"]["address"],
+               city=data["shippingInfo"]["city"],
+               state=data["shippingInfo"]["state"],
+               zipcode=data["shippingInfo"]["zipcode"]
+          )
+
      return JsonResponse("Payment completed", safe=False)
