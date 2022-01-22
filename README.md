@@ -2,15 +2,15 @@
 
 ## Store Page
 
-![](gui/images/store.png)
+![](gui/store.png)
 
 ## Cart Page
 
-![](gui/images/cart.png)
+![](gui/cart.png)
 
 ## Checkout Page
 
-![](gui/images/cart.png)
+![](gui/cart.png)
 
 
 ## Tutorial
