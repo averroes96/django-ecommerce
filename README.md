@@ -10,7 +10,7 @@
 
 ## Checkout Page
 
-![](gui/cart.png)
+![](gui/checkout.png)
 
 
 ## Tutorial
